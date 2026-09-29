@@ -1,6 +1,6 @@
 {
   "name": "async-context-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tiny, dependency-free request-scoped context for Node.js built on AsyncLocalStorage. Request IDs, user/tenant IDs, logging and tracing metadata — without threading arguments through every call.",
   "keywords": [
     "async-local-storage",
@@ -24,7 +24,7 @@
     "url": "https://github.com/FatjonMileti/async-context-kit/issues"
   },
   "license": "MIT",
-  "author": "",
+  "author": "Fatjon Mileti",
   "engines": {
     "node": ">=18"
   },
