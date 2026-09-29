@@ -1,0 +1,79 @@
+{
+  "name": "async-context-kit",
+  "version": "0.1.0",
+  "description": "Tiny, dependency-free request-scoped context for Node.js built on AsyncLocalStorage. Request IDs, user/tenant IDs, logging and tracing metadata — without threading arguments through every call.",
+  "keywords": [
+    "async-local-storage",
+    "async-hooks",
+    "request-context",
+    "request-id",
+    "correlation-id",
+    "nodejs",
+    "express",
+    "typescript",
+    "logging",
+    "tracing",
+    "context-propagation"
+  ],
+  "homepage": "https://github.com/FatjonMileti/async-context-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FatjonMileti/async-context-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FatjonMileti/async-context-kit/issues"
+  },
+  "license": "MIT",
+  "author": "",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:build": "npm run build && node ./scripts/verify-build.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "bench": "node ./examples/bench/run.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.9.0",
+    "@types/supertest": "^6.0.2",
+    "eslint": "^9.14.0",
+    "express": "^4.21.2",
+    "globals": "^14.0.0",
+    "prettier": "^3.3.3",
+    "supertest": "^7.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.13.0",
+    "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
