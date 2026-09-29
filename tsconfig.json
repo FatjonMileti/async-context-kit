@@ -17,6 +17,13 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      // Lets examples/ import the package by name (self-reference)
+      // without requiring a built dist/ or a node_modules self-link,
+      // so `tsc --noEmit` also passes on fresh CI checkouts.
+      "async-context-kit": ["./src/index.ts"]
+    },
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
