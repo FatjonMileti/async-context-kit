@@ -227,6 +227,17 @@ Requires **Node.js >= 18** (`engines` enforced). Uses only `node:async_hooks` (`
 
 PRs welcome: keep the package tiny and dependency-free. Run `npm install`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` before submitting.
 
+## Releasing
+
+Publishing to npm is automated via [`.github/workflows/publish.yml`](.github/workflows/publish.yml), which runs when a GitHub Release is published. One-time setup: add an npm granular access token (read + write for `async-context-kit`) as the `NPM_TOKEN` repository secret.
+
+```bash
+npm version patch   # or minor | major
+git push --follow-tags
+```
+
+Then create a GitHub Release from the new tag — the workflow verifies the tag matches `package.json`, re-runs all quality gates, and publishes with provenance.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
