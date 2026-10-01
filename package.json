@@ -34,7 +34,11 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts",
+        "default": "./dist/index.d.ts"
+      },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
@@ -50,6 +54,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:build": "npm run build && node ./scripts/verify-build.mjs",
+    "test:fixtures": "node ./scripts/verify-consumer-types.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

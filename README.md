@@ -108,6 +108,41 @@ The middleware:
 
 It **never** stores cookies, authorization headers, query strings, or request bodies. Works with Express 4 and 5 (and any `(req, res, next)`-compatible framework). Express itself is **not** a runtime dependency — the middleware uses structural typing only.
 
+## Attaching identity after authentication
+
+The middleware's `context` option runs **before** authentication, so `req.user` doesn't exist yet at middleware time. Attach identity later, after verification:
+
+```ts
+import { RequestContext } from "async-context-kit";
+
+async function authenticate(req, res, next) {
+  const decoded = await verifyJwt(req.headers.authorization);
+  // Guard: this code also runs in seed scripts / tests with no request.
+  if (RequestContext.has()) {
+    RequestContext.setValue("userId", decoded.sub);
+    // ...or merge several fields at once:
+    // RequestContext.update({ userId: decoded.sub, tenantId: decoded.tenant });
+  }
+  next();
+}
+```
+
+`setValue()` / `update()` throw `RequestContextError` outside a context — the `has()` guard keeps shared code (services, seed scripts, unit tests) safe. Read identity anywhere downstream with `RequestContext.getValue("userId")`, or grab a frozen copy for logging with `RequestContext.getSnapshot()`.
+
+**Never store secrets.** The context is routinely serialized into logs and error reporters — it must never contain tokens, passwords, cookies, or full headers/bodies:
+
+```ts
+// NEVER do this:
+RequestContext.setValue("token", req.headers.authorization);
+RequestContext.setValue("password", req.body.password);
+
+// Assert the discipline in your own tests:
+const store = RequestContext.getSnapshot() ?? {};
+expect(store).not.toHaveProperty("token");
+expect(store).not.toHaveProperty("password");
+expect(JSON.stringify(store)).not.toContain("Bearer ");
+```
+
 ## Custom typed context
 
 ```ts
@@ -183,28 +218,29 @@ See [Core API](#core-apiframework-agnostic) and [Express integration](#express-i
 - `createExpressMiddleware`
 - `generateRequestId`, `isValidRequestId`, `normalizeRequestId`, `resolveRequestId`
 - `DEFAULT_REQUEST_ID_HEADER`, `DEFAULT_MAX_REQUEST_ID_LENGTH`
-- Types: `RequestContextData`, `RequestIdOptions`, `ContextIncludeOptions`, `ExpressMiddlewareOptions`
+- Types: `RequestContextData`, `RequestIdOptions`, `ContextIncludeOptions`, `ExpressMiddlewareOptions`, `ExpressLikeRequest`, `ExpressLikeResponse`, `ExpressLikeNext`
+- Snapshot reader: `RequestContext.getSnapshot()` — frozen shallow copy for safe logging/diagnostics
 
 ## TypeScript usage
 
-Strict-mode clean, no `any` in the public API (`unknown` where values are truly unknown). ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), and declarations (`dist/index.d.ts`) are all generated; `exports` maps `import`/`require` correctly.
+Strict-mode clean, no `any` in the public API (`unknown` where values are truly unknown). ESM (`dist/index.js`), CommonJS (`dist/index.cjs`), and declarations (`dist/index.d.ts` + `dist/index.d.cts`) are all generated; `exports` maps `import`/`require` to the correct JS bundle **and** declaration file, so CommonJS (`module: node16`) consumers typecheck with zero suppressions.
 
 ## Error behavior
 
-| Situation                                          | Behavior                                                     |
-| -------------------------------------------------- | ------------------------------------------------------------ |
-| `get()` / `getValue()` / `has()` outside a context | `undefined` / `undefined` / `false` — safe for logging paths |
-| `getOrThrow()` outside a context                   | throws `RequestContextError`                                 |
-| `setValue()` / `update()` outside a context        | throws `RequestContextError` (silent drops would hide bugs)  |
-| Throwing `context(req)` callback in middleware     | caught; request continues with the base context              |
-| Response-header write failure                      | caught; request continues                                    |
+| Situation                                                            | Behavior                                                                   |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `get()` / `getValue()` / `getSnapshot()` / `has()` outside a context | `undefined` / `undefined` / `undefined` / `false` — safe for logging paths |
+| `getOrThrow()` outside a context                                     | throws `RequestContextError`                                               |
+| `setValue()` / `update()` outside a context                          | throws `RequestContextError` (silent drops would hide bugs)                |
+| Throwing `context(req)` callback in middleware                       | caught; request continues with the base context                            |
+| Response-header write failure                                        | caught; request continues                                                  |
 
 ## Security considerations
 
 - **Untrusted request IDs**: validated (length-bounded, control-char-free) and optionally ignored via `trustIncoming: false`. Never use a client-supplied ID as a sole authorization key — it's spoofable by design (that's what correlation IDs are for).
 - **Max length**: default `128` chars; configurable via `maxLength`. Bounds memory and header-bloat abuse.
 - **No sensitive capture**: the middleware never stores cookies, `Authorization` headers, query strings, or bodies. Don't add them yourself via `context:` unless you accept the PII/secret-handling implications.
-- **Mutable store**: `get()` returns a live reference. Don't hand it to untrusted code that could poison downstream reads; prefer `getValue()` for narrow access.
+- **Mutable store**: `get()` returns a live reference. Don't hand it to untrusted code that could poison downstream reads; prefer `getValue()` for narrow access and `getSnapshot()` (frozen copy) for logging/diagnostics.
 - **Memory**: the store lives only for the request/callback lifetime and is GC-eligible afterwards. Avoid stashing large objects (full DB rows, buffers) in the context.
 
 ## Performance considerations

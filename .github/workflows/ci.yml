@@ -22,4 +22,5 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run test:build
+      - run: npm run test:fixtures
       - run: npm pack --dry-run

@@ -1,0 +1,7 @@
+{
+  "name": "cjs-consumer-fixture",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Type-level consumer fixture: a CommonJS (module: node16) package that imports async-context-kit by name. Never published; exercised by scripts/verify-consumer-types.mjs against the packed tarball.",
+  "type": "commonjs"
+}

@@ -105,6 +105,24 @@ export class RequestContextBase {
   }
 
   /**
+   * Return a frozen shallow copy of the active context, or
+   * `undefined` when no context is active.
+   *
+   * Unlike `get()` (which returns the live store reference), the
+   * snapshot is safe to hand to loggers and diagnostics: it is
+   * `Object.freeze()`d, so accidental writes throw instead of
+   * corrupting request state, and later `setValue()` / `update()`
+   * calls do not mutate it.
+   */
+  static getSnapshot<TContext extends object = RequestContextData>():
+    Readonly<TContext> | undefined {
+    const store = storage.getStore();
+    if (store === undefined) return undefined;
+    const copy = { ...(store as Record<string, unknown>) };
+    return Object.freeze(copy) as Readonly<TContext>;
+  }
+
+  /**
    * Write a single key on the active context.
    * @throws {RequestContextError} when no context is active.
    */

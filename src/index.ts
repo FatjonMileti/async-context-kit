@@ -10,6 +10,9 @@ import {
 } from "./request-id.js";
 import type {
   ContextIncludeOptions,
+  ExpressLikeNext,
+  ExpressLikeRequest,
+  ExpressLikeResponse,
   ExpressMiddlewareOptions,
   RequestContextData,
   RequestIdOptions,
@@ -56,6 +59,9 @@ export {
 
 export type {
   ContextIncludeOptions,
+  ExpressLikeNext,
+  ExpressLikeRequest,
+  ExpressLikeResponse,
   ExpressMiddlewareOptions,
   RequestContextData,
   RequestIdOptions,
