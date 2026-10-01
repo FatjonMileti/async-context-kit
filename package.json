@@ -1,6 +1,6 @@
 {
   "name": "async-context-kit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Tiny, dependency-free request-scoped context for Node.js built on AsyncLocalStorage. Request IDs, user/tenant IDs, logging and tracing metadata — without threading arguments through every call.",
   "keywords": [
     "async-local-storage",
